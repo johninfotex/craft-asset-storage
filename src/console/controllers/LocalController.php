@@ -12,6 +12,7 @@ use craft\db\Table;
 use craft\helpers\App;
 use craft\helpers\Console;
 use craft\helpers\Db;
+use craft\console\controllers\DbController;
 use craft\helpers\StringHelper;
 use servd\AssetStorage\Plugin;
 use yii\console\ExitCode;
@@ -38,6 +39,7 @@ class LocalController extends Controller
     public $servdKey;
     public $skipBackup = false;
     public $skipDelete = false;
+    public $dropAllTables = false;
     public $verbose = false;
 
     private $leaveOpen = true;
@@ -55,6 +57,7 @@ class LocalController extends Controller
             'servdSlug',
             'servdKey',
             'skipBackup',
+            'dropAllTables',
             'skipDelete',
             'verbose'
         ]);
@@ -147,6 +150,16 @@ class LocalController extends Controller
         // if there was output, then they're running mysqldump 8.x against a 5.x database.
         if ($success && $shellCommand->getOutput()) {
             $skipColStat .= ' --skip-column-statistics';
+        }
+
+        // optionally allow --dropAllTables parameter to give a clear destination
+        if (!empty($this->dropAllTables)) {
+            if ($this->interactive) {
+                if ($this->confirm('You have selected to drop all tables. Do you want to proceed?')) {
+                    $DbController = new DbController('db', $this->module);
+                    $DbController->actionDropAllTables();
+                }
+            }
         }
 
         //Perform a direct stream from the remote db into the local
