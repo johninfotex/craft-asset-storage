@@ -155,10 +155,8 @@ class LocalController extends Controller
         // optionally allow --dropAllTables parameter to give a clear destination
         if (!empty($this->dropAllTables)) {
             if ($this->interactive) {
-                if ($this->confirm('You have selected to drop all tables. Do you want to proceed?')) {
-                    $DbController = new DbController('db', $this->module);
-                    $DbController->actionDropAllTables();
-                }
+                $DbController = new DbController('db', $this->module);
+                $DbController->actionDropAllTables();
             }
         }
 
